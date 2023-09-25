@@ -113,3 +113,6 @@ uploads/avatars/*
 !uploads/avatars/.gitkeep
 
 whooshee
+/Assignment 1 (1).docx
+
+/albumy/ml_models/credentials/data.py
