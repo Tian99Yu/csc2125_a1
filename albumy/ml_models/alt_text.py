@@ -1,5 +1,5 @@
-# Add data.py in the credentials directory, and create an variable called KEY,
-# another called  END_POINT.
-# ** DO NOT COMMIT THIS CHANGE TO GIT!!!!!!!!!! **
-from credentials.data import KEY, END_POINT
+import os
 
+# Use Environment Variable For Credentials
+subscription_key = os.environ["VISION_KEY"]
+endpoint = os.environ["VISION_ENDPOINT"]
