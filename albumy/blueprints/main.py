@@ -15,6 +15,7 @@ from sqlalchemy.sql.expression import func
 from albumy.decorators import confirm_required, permission_required
 from albumy.extensions import db
 from albumy.forms.main import DescriptionForm, TagForm, CommentForm
+from albumy.ml_models.alt_text import get_alt_text
 from albumy.models import User, Photo, Tag, Follow, Collect, Comment, Notification
 from albumy.notifications import push_comment_notification, push_collect_notification
 from albumy.utils import rename_image, resize_image, redirect_back, flash_errors
@@ -33,6 +34,11 @@ def index():
             .order_by(Photo.timestamp.desc()) \
             .paginate(page, per_page)
         photos = pagination.items
+        for photo in photos:
+            fpath = os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], photo.filename)
+            alt, _ = get_alt_text(fpath)
+            photo.alt = alt
+            db.session.commit()
     else:
         pagination = None
         photos = None
@@ -125,11 +131,14 @@ def upload():
         f.save(os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], filename))
         filename_s = resize_image(f, filename, current_app.config['ALBUMY_PHOTO_SIZE']['small'])
         filename_m = resize_image(f, filename, current_app.config['ALBUMY_PHOTO_SIZE']['medium'])
+        fpath = os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], filename)
+        file_alt = get_alt_text(fpath)[0]
         photo = Photo(
             filename=filename,
             filename_s=filename_s,
             filename_m=filename_m,
-            author=current_user._get_current_object()
+            author=current_user._get_current_object(),
+            alt=file_alt
         )
         db.session.add(photo)
         db.session.commit()
@@ -139,6 +148,12 @@ def upload():
 @main_bp.route('/photo/<int:photo_id>')
 def show_photo(photo_id):
     photo = Photo.query.get_or_404(photo_id)
+    print(photo.filename, photo.filename_m, photo.filename_s)
+    if photo.alt is None:
+        fpath = os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], photo.filename)
+        alt, _ = get_alt_text(fpath)
+        photo.alt = alt
+        db.session.commit()
     page = request.args.get('page', 1, type=int)
     per_page = current_app.config['ALBUMY_COMMENT_PER_PAGE']
     pagination = Comment.query.with_parent(photo).order_by(Comment.timestamp.asc()).paginate(page, per_page)
