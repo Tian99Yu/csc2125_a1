@@ -15,7 +15,7 @@ from sqlalchemy.sql.expression import func
 from albumy.decorators import confirm_required, permission_required
 from albumy.extensions import db
 from albumy.forms.main import DescriptionForm, TagForm, CommentForm
-from albumy.models import User, Photo, Tag, Follow, Collect, Comment, Notification
+from albumy.models import User, Photo, Tag, Follow, Collect, Comment, Notification, Object
 from albumy.notifications import push_comment_notification, push_collect_notification
 from albumy.utils import rename_image, resize_image, redirect_back, flash_errors
 from albumy.ml_models.obj_search import get_objects_in_img
@@ -51,16 +51,18 @@ def explore():
 def search():
     q = request.args.get('q', '').strip()
     if q == '':
-        flash('Enter keyword about photo, user or tag.', 'warning')
+        flash('Enter keyword about photo, user, tag or objects.', 'warning')
         return redirect_back()
 
-    category = request.args.get('category', 'photo')
+    category = request.args.get('category', 'photo', 'object')
     page = request.args.get('page', 1, type=int)
     per_page = current_app.config['ALBUMY_SEARCH_RESULT_PER_PAGE']
     if category == 'user':
         pagination = User.query.whooshee_search(q).paginate(page, per_page)
     elif category == 'tag':
         pagination = Tag.query.whooshee_search(q).paginate(page, per_page)
+    elif category == 'object':
+        pagination = Object.query.whooshee_search(q).paginate(page, per_page)
     else:
         pagination = Photo.query.whooshee_search(q).paginate(page, per_page)
     results = pagination.items

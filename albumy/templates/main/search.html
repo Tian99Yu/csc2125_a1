@@ -17,6 +17,8 @@
                    href="{{ url_for('.search', q=q, category='user') }}">User</a>
                 <a class="nav-item nav-link {% if category == 'tag' %}active{% endif %}"
                    href="{{ url_for('.search', q=q, category='tag') }}">Tag</a>
+                <a class="nav-item nav-link {% if category == 'object' %}active{% endif %}"
+                   href="{{ url_for('.search', q=q, category='object') }}">Object</a>
             </div>
         </div>
         <div class="col-md-9">

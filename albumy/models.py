@@ -222,6 +222,11 @@ tagging = db.Table('tagging',
                    db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'))
                    )
 
+objecting = db.Table('objecting',
+                        db.Column('photo_id', db.Integer, db.ForeignKey('photo.id')),
+                        db.Column('object_id', db.Integer, db.ForeignKey('object.id'))
+                        )
+
 
 @whooshee.register_model('description')
 class Photo(db.Model):
@@ -239,6 +244,7 @@ class Photo(db.Model):
     comments = db.relationship('Comment', back_populates='photo', cascade='all')
     collectors = db.relationship('Collect', back_populates='collected', cascade='all')
     tags = db.relationship('Tag', secondary=tagging, back_populates='photos')
+    objects = db.relationship('Object', secondary=objecting, back_populates='photos')
 
 
 @whooshee.register_model('name')
@@ -247,6 +253,14 @@ class Tag(db.Model):
     name = db.Column(db.String(64), index=True, unique=True)
 
     photos = db.relationship('Photo', secondary=tagging, back_populates='tags')
+
+
+@whooshee.register_model('name')
+class Object(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), index=True, unique=True)
+
+    photos = db.relationship('Photo', secondary=objecting, back_populates='objects')
 
 
 class Comment(db.Model):
