@@ -35,10 +35,12 @@ def index():
             .paginate(page, per_page)
         photos = pagination.items
         for photo in photos:
-            fpath = os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], photo.filename)
-            alt, _ = get_alt_text(fpath)
-            photo.alt = alt
-            db.session.commit()
+            # If alt field is empty, add the machine generated ones.
+            if photo.alt is None:
+                fpath = os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], photo.filename)
+                alt, _ = get_alt_text(fpath)
+                photo.alt = alt
+                db.session.commit()
     else:
         pagination = None
         photos = None
