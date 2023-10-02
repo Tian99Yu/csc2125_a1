@@ -34,13 +34,6 @@ def index():
             .order_by(Photo.timestamp.desc()) \
             .paginate(page, per_page)
         photos = pagination.items
-        for photo in photos:
-            # If alt field is empty, add the machine generated ones.
-            if photo.alt is None:
-                fpath = os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], photo.filename)
-                alt, _ = get_alt_text(fpath)
-                photo.alt = alt
-                db.session.commit()
     else:
         pagination = None
         photos = None
@@ -150,12 +143,6 @@ def upload():
 @main_bp.route('/photo/<int:photo_id>')
 def show_photo(photo_id):
     photo = Photo.query.get_or_404(photo_id)
-    print(photo.filename, photo.filename_m, photo.filename_s)
-    if photo.alt is None:
-        fpath = os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], photo.filename)
-        alt, _ = get_alt_text(fpath)
-        photo.alt = alt
-        db.session.commit()
     page = request.args.get('page', 1, type=int)
     per_page = current_app.config['ALBUMY_COMMENT_PER_PAGE']
     pagination = Comment.query.with_parent(photo).order_by(Comment.timestamp.asc()).paginate(page, per_page)
