@@ -19,6 +19,7 @@ from albumy.ml_models.alt_text import get_alt_text
 from albumy.models import User, Photo, Tag, Follow, Collect, Comment, Notification
 from albumy.notifications import push_comment_notification, push_collect_notification
 from albumy.utils import rename_image, resize_image, redirect_back, flash_errors
+from albumy.ml_models.obj_search import get_objects_in_img
 
 main_bp = Blueprint('main', __name__)
 
@@ -139,6 +140,19 @@ def upload():
         )
         db.session.add(photo)
         db.session.commit()
+        # add tags
+        print(os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], filename))
+        tags = get_objects_in_img(os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], filename))
+        print(tags)
+        for name in tags:
+            tag = Tag.query.filter_by(name=name).first()
+            if tag is None:
+                tag = Tag(name=name)
+                db.session.add(tag)
+                db.session.commit()
+            if tag not in photo.tags:
+                photo.tags.append(tag)
+                db.session.commit()
     return render_template('main/upload.html')
 
 
