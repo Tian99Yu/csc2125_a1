@@ -128,12 +128,14 @@ def upload():
         filename_m = resize_image(f, filename, current_app.config['ALBUMY_PHOTO_SIZE']['medium'])
         fpath = os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], filename)
         file_alt = get_alt_text(fpath)[0]
+        alt_description = f"machine generated: {file_alt}"
         photo = Photo(
             filename=filename,
             filename_s=filename_s,
             filename_m=filename_m,
             author=current_user._get_current_object(),
-            alt=file_alt
+            alt=file_alt,
+            alt_description=alt_description
         )
         db.session.add(photo)
         db.session.commit()
@@ -252,6 +254,7 @@ def edit_description(photo_id):
     form = DescriptionForm()
     if form.validate_on_submit():
         photo.description = form.description.data
+        photo.alt_description = f"machine generated: {photo.alt}, user description: {form.description.data}"
         db.session.commit()
         flash('Description updated.', 'success')
 
