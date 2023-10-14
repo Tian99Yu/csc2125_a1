@@ -9,7 +9,11 @@ Demo: http://albumy.helloflask.com
 ![Screenshot](https://helloflask.com/screenshots/albumy.png)
 
 ## Installation
+### Machine Learning Functionality Set Up
 
+1. Register Account in [Microsoft Azure](https://learn.microsoft.com/en-us/azure/ai-services/computer-vision/quickstarts-sdk/image-analysis-client-library?pivots=programming-language-csharp&tabs=linux%2Cvisual-studio) to spin up a computer vision server.
+2. Set your credential variables in your local environment. Use `VISION_KEY` variable name for the key, and `VISION_ENDPOINT` variable name for the endpoint you get from Azure. You can use commands like `export VISION_KEY=xxxx` to do it. 
+### Software Set Up
 clone:
 ```
 $ git clone https://github.com/greyli/albumy.git
